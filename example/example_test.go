@@ -7,6 +7,8 @@ import (
 	"testing"
 )
 
+type AnotherLocalError gerr.Grr
+
 func Test_Example(t *testing.T) {
 	fakeDbError := errors.New("fake DB error, cannot connect")
 	parseError := errors.New("failed to parse, invalid id format")

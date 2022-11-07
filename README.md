@@ -14,8 +14,7 @@ That being said I would still like to have the ability to check for the exact er
 error type preserved, for logging and debugging purposes. 
 
 Thus comes the motivation for writing this library, the name is a play on words, as it is a library to generate errors, 
-and golang has terrible error handling, so I thought, of the most common sound I make when doing anything fancier than 
-the vanilla error handling in go. Grr!
+so I thought, of the most common sound I make when doing anything fancier than the vanilla error handling in go. Grr!
 
 ## Installation
 ```bash
@@ -29,9 +28,58 @@ contextual information, not to be confused with `context.Context`.
 
 ### Important
 Gerr does not add any overhead to the error, it is just a wrapper around the error, and does not add any significant 
-size to the memory footprint of the error.   
+size to the memory footprint of the error.  
 
-### Example `Grr` interface usage
+#### How it works 
+
+There are two types that implement the `Grr` interface, these types are `kind` and `wrapped`
+- kind: is the vanilla error type. it has no additional information, other than the separator used for the error message.
+- wrapped: is the error type that wraps another error, it has the same information as the `kind` type, but also has the 
+`Unwrap` method, thus it fulfills the `errors.Unwrap` interface.
+
+The `New` function returns a `Grr` interface type, behind the scenes it is either of type `wrapped` or type `kind`
+depending on the arguments passed to the function.
+
+The `Add` function is a convenience function to add an error to an existing error, if the underlying type is `kind`
+then it will be converted to a `wrapped` type, and the new error will be added to the chain, if it's already a type
+`wrapped` then the new error will be added to the chain.
+
+The `Error` function exists to satisfy the `error` interface, and it returns the error message, which is a concatenation
+of the error messages of the underlying errors, separated by the separator.
+
+The `Chain` function returns the complete and sanitized error chain as `[]error` this is useful if more control is
+needed, which is not exposed by the `Is` function.
+
+The `Is` function not only is a convenience function to check if the error is of a specific type, but it also
+if fulfills the `srrors.Is` interface therefore any calls to `errors.Is` will also work.
+
+The `Sanitize` function simply removes all of the `wrapped` specific data and returns a `kind` type, one could add
+more errors to the kind and thus it would become a `wrapped` type again.
+
+The `Unwrap` function implements the `errors.Unwrap` interface, and returns the underlying error, if it exists. 
+This method is only available on the `wrapped` type and it's not exposed on the `Grr` interface. 
+
+#### Using `gerr.New`
+```go
+package main
+
+import (
+	"fmt"
+	"errors"
+	"github.com/insan1k/gerr"
+)
+
+func main() {
+	top:=errors.New("this is an error")
+	wrap:=errors.New("with a wrapped error")
+	gerr.New(top,gerr.WithErr(wrap))
+	gerr.New(top).Add(wrap) // same as above
+	gerr.New(fmt.Errorf("%v %w",top,wrap)) // same as above
+    fmt.Println(err)
+}
+```
+
+#### Example `Grr` interface usage
 ```go
 package main
 
@@ -109,6 +157,9 @@ func main() {
 	//gerr.Chain function
 }
 ```
+## Final Considerations
+As it stands this library is a work in progress, I would like to keep a minimal API and as such I would not add a lot of
+features on the `Grr` interface , if you have any suggestions please feel free to open an issue or a PR.
 
 ## Contributing
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.

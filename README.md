@@ -66,7 +66,7 @@ func main() {
 
 }
 ```
-More examples can be found in the [examples](github.com/insan1k/gerr/example_test.go) file.
+More examples can be found in the [examples](https://github.com/insan1k/gerr/blob/main/example_test.go) file.
 There you can see an example of the Grr interface in action. How we can embed it to a struct and use it to enrich the 
 error.
 

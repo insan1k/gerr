@@ -114,4 +114,4 @@ func main() {
 Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
 
 ## License
-[Apache 2.0](github.com/insan1k/gerr/blob/main/LICENSE)
+[Apache 2.0](https://github.com/insan1k/gerr/blob/main/LICENSE)

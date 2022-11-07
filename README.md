@@ -13,6 +13,10 @@ the underlying implementation of the package and the error type, that created an
 That being said I would still like to have the ability to check for the exact error type, if I need to. And to have the 
 error type preserved, for logging and debugging purposes. 
 
+Thus comes the motivation for writing this library, the name is a play on words, as it is a library to generate errors, 
+and golang has terrible error handling, so I thought, of the most common sound I make when doing anything fancier than 
+the vanilla error handling in go. Grr!
+
 ## Installation
 ```bash
 go get github.com/insan1k/gerr

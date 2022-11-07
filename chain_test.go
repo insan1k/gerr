@@ -21,7 +21,7 @@ func TestChain(t *testing.T) {
 			name: "testWithColon10",
 			args: args{
 				curErr: genWrappedErrWithColon(10),
-				opts:   []SanitizeOpt{WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot10"),
@@ -40,7 +40,7 @@ func TestChain(t *testing.T) {
 			name: "testWithColon7",
 			args: args{
 				curErr: genWrappedErrWithColon(7),
-				opts:   []SanitizeOpt{WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot7"),
@@ -56,7 +56,7 @@ func TestChain(t *testing.T) {
 			name: "testWithColon3",
 			args: args{
 				curErr: genWrappedErrWithColon(3),
-				opts:   []SanitizeOpt{WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot3"),
@@ -68,7 +68,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpace10",
 			args: args{
 				curErr: genWrappedErrWithSpace(10),
-				opts:   []SanitizeOpt{WithTrimSpaces()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot10"),
@@ -87,7 +87,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpace7",
 			args: args{
 				curErr: genWrappedErrWithSpace(7),
-				opts:   []SanitizeOpt{WithTrimSpaces()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot7"),
@@ -103,7 +103,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpace3",
 			args: args{
 				curErr: genWrappedErrWithSpace(3),
-				opts:   []SanitizeOpt{WithTrimSpaces()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot3"),
@@ -115,7 +115,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpaceAndColon10",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColon(10),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot10"),
@@ -134,7 +134,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpaceAndColon7",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColon(7),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot7"),
@@ -150,7 +150,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpaceAndColon3",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColon(3),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot3"),
@@ -162,7 +162,7 @@ func TestChain(t *testing.T) {
 			name: "testWithSpaceAndColon2",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColon(2),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot2"),
@@ -182,7 +182,7 @@ func TestChain(t *testing.T) {
 			name: "testWithPrependedSpaceAndColon10",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColonAndPrepend(10),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot10"),
@@ -201,7 +201,7 @@ func TestChain(t *testing.T) {
 			name: "testWithNormalOrder10",
 			args: args{
 				curErr: genWrappedErrWithSpaceAndColon(10),
-				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons(), WithNormalOrder()},
+				opts:   []SanitizeOpt{WithTrimSpaces(), WithTrimColons()},
 			},
 			want: []error{
 				errors.New("top1"),
@@ -220,7 +220,7 @@ func TestChain(t *testing.T) {
 			name: "testWithCustom10",
 			args: args{
 				curErr: genWrappedErrWith(10, "%custom%", "%custom%"),
-				opts:   []SanitizeOpt{WithTrimCustom("%custom%")},
+				opts:   []SanitizeOpt{WithTrimCustom("%custom%"), WithBottomFirst()},
 			},
 			want: []error{
 				errors.New("bot10"),
@@ -233,6 +233,25 @@ func TestChain(t *testing.T) {
 				errors.New("mid3"),
 				errors.New("mid2"),
 				errors.New("top1"),
+			},
+		},
+		{
+			name: "testWithNoSeparator",
+			args: args{
+				curErr: genWrappedErrWithNoSep(10),
+				opts:   []SanitizeOpt{},
+			},
+			want: []error{
+				errors.New("top1"),
+				errors.New("mid2"),
+				errors.New("mid3"),
+				errors.New("mid4"),
+				errors.New("mid5"),
+				errors.New("mid6"),
+				errors.New("mid7"),
+				errors.New("mid8"),
+				errors.New("mid9"),
+				errors.New("bot10"),
 			},
 		},
 	}
@@ -258,6 +277,10 @@ func genWrappedErrWith(count int, sep, pre string) error {
 	}
 	err = fmt.Errorf("%stop1%s%w", pre, sep, err)
 	return err
+}
+
+func genWrappedErrWithNoSep(count int) error {
+	return genWrappedErrWith(count, "", "")
 }
 
 func genWrappedErrWithColon(count int) error {

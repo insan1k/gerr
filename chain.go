@@ -28,10 +28,10 @@ func WithTrimCustom(toTrim string) SanitizeOpt {
 	}
 }
 
-// WithNormalOrder configures the sanitizer to using the normal order of the error chain instead of the reverse order
-func WithNormalOrder() SanitizeOpt {
+// WithBottomFirst configures the chain to be built with the bottom error first and the top error last
+func WithBottomFirst() SanitizeOpt {
 	return func(c *sanitizeConfig) {
-		c.noInverseOrder = true
+		c.bottomFirst = true
 	}
 }
 
@@ -55,7 +55,7 @@ func Chain(err error, opts ...SanitizeOpt) []error {
 		for hasNext {
 			currentErr, nextErr, hasNext = unwrapBuildChain(currentErr, nextErr, &chain, c)
 		}
-		if c.noInverseOrder == false {
+		if c.bottomFirst {
 			reverse[[]error, error](chain)
 		}
 		return chain
@@ -140,5 +140,5 @@ type sanitizeConfig struct {
 	trimSpacesFunc func(s string) string
 	trimColonsFunc func(s string) string
 	trimCustomFunc func(s string) string
-	noInverseOrder bool
+	bottomFirst    bool
 }

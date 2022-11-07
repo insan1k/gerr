@@ -1,7 +1,5 @@
 package gerr
 
-import "errors"
-
 // New returns the package type Wrapped as a standard error if the given arguments contain a wrapped error, or supply a
 // error to wrap using WithErr, otherwise it returns Kind which implements the package Grr interface.
 func New(kind error, opts ...Option) Grr {
@@ -51,13 +49,6 @@ func AsGrr(err error) Grr {
 	}
 	if g, ok := err.(Grr); ok {
 		return g
-	}
-	g := wrapped{}
-	if ok := errors.As(err, &g); ok {
-		return g
-	}
-	if ok := errors.As(err, &g.kind); ok {
-		return g.kind
 	}
 	return New(err)
 }

@@ -26,7 +26,7 @@ func Test_wrapped_Add(t *testing.T) {
 			fields: fields{
 				kind: kind{
 					err:       errors.New("test"),
-					separator: separator(),
+					separator: _separator(),
 				},
 				err: errors.New("wasThere"),
 			},
@@ -36,9 +36,9 @@ func Test_wrapped_Add(t *testing.T) {
 			want: wrapped{
 				kind: kind{
 					err:       errors.New("test"),
-					separator: separator(),
+					separator: _separator(),
 				},
-				err: fmt.Errorf("%v%s%w", errors.New("add"), separator(), errors.New("wasThere")),
+				err: fmt.Errorf("%v%s%w", errors.New("add"), _separator(), errors.New("wasThere")),
 			},
 		},
 	}
@@ -65,7 +65,39 @@ func Test_wrapped_Chain(t *testing.T) {
 		fields fields
 		want   []error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ChainTwoErrors",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: fmt.Errorf("%v%s%w", errors.New("added"), _separator(), errors.New("original")),
+			},
+			want: []error{errors.New("test"), errors.New("added"), errors.New("original")},
+		},
+		{
+			name: "ChainOneError",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			want: []error{errors.New("test"), errors.New("original")},
+		},
+		{
+			name: "ChainSeveralErrors",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: fmt.Errorf("%v%s%w", errors.New("added"), _separator(), fmt.Errorf("%v%s%w", errors.New("added2"), _separator(), errors.New("original"))),
+			},
+			want: []error{errors.New("test"), errors.New("added"), errors.New("added2"), errors.New("original")},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -90,7 +122,39 @@ func Test_wrapped_Error(t *testing.T) {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
+		{
+			name: "ChainTwoErrors",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: fmt.Errorf("%v%s%w", errors.New("added"), _separator(), errors.New("original")),
+			},
+			want: "test" + _separator() + "added" + _separator() + "original",
+		},
+		{
+			name: "ChainOneError",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			want: "test" + _separator() + "original",
+		},
+		{
+			name: "ChainSeveralErrors",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: fmt.Errorf("%v%s%w", errors.New("added"), _separator(), fmt.Errorf("%v%s%w", errors.New("added2"), _separator(), errors.New("original"))),
+			},
+			want: "test" + _separator() + "added" + _separator() + "added2" + _separator() + "original",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -113,13 +177,97 @@ func Test_wrapped_Is(t *testing.T) {
 	type args struct {
 		target error
 	}
+	nn := New(genWrappedErrorsWithSeparator(100)).(wrapped)
 	tests := []struct {
 		name   string
 		fields fields
 		args   args
 		want   bool
 	}{
-		// TODO: Add test cases.
+		{
+			name: "IsTarget",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			args: args{
+				target: errors.New("test"),
+			},
+			want: true,
+		},
+		{
+			name: "IsTarget2",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			args: args{
+				target: errors.New("original"),
+			},
+			want: true,
+		},
+		{
+			name: "IsNotTarget",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			args: args{
+				target: errors.New("not"),
+			},
+			want: false,
+		},
+		{
+			name: "IsTargetBot100",
+			fields: fields{
+				kind: kind{
+					err:       nn.kind.err,
+					separator: nn.kind.separator,
+				},
+				err: nn.err,
+			},
+			args: args{
+				target: errors.New("bot100"),
+			},
+			want: true,
+		},
+		{
+			name: "IsTargetMid50",
+			fields: fields{
+				kind: kind{
+					err:       nn.kind.err,
+					separator: nn.kind.separator,
+				},
+				err: nn.err,
+			},
+			args: args{
+				target: errors.New("mid50"),
+			},
+			want: true,
+		},
+		{
+			name: "IsTargetTop1",
+			fields: fields{
+				kind: kind{
+					err:       nn.kind.err,
+					separator: nn.kind.separator,
+				},
+				err: nn.err,
+			},
+			args: args{
+				target: errors.New("top1"),
+			},
+			want: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -139,12 +287,40 @@ func Test_wrapped_Sanitize(t *testing.T) {
 		kind kind
 		err  error
 	}
+	nn := New(genWrappedErrorsWithSeparator(100)).(wrapped)
 	tests := []struct {
 		name   string
 		fields fields
 		want   Grr
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Sanitize",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			want: kind{
+				err:       errors.New("test"),
+				separator: _separator(),
+			},
+		},
+		{
+			name: "Sanitize100",
+			fields: fields{
+				kind: kind{
+					err:       nn.kind.err,
+					separator: nn.kind.separator,
+				},
+				err: nn.err,
+			},
+			want: kind{
+				err:       errors.New("top1"),
+				separator: nn.kind.separator,
+			},
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -167,9 +343,19 @@ func Test_wrapped_Unwrap(t *testing.T) {
 	tests := []struct {
 		name    string
 		fields  fields
-		wantErr bool
+		wantErr error
 	}{
-		// TODO: Add test cases.
+		{
+			name: "Unwrap",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test"),
+					separator: _separator(),
+				},
+				err: errors.New("original"),
+			},
+			wantErr: errors.New("original"),
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -177,9 +363,13 @@ func Test_wrapped_Unwrap(t *testing.T) {
 				kind: tt.fields.kind,
 				err:  tt.fields.err,
 			}
-			if err := w.Unwrap(); (err != nil) != tt.wantErr {
+			if err := w.Unwrap(); err.Error() != tt.wantErr.Error() {
 				t.Errorf("Unwrap() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
 	}
+}
+
+func genWrappedErrorsWithSeparator(count int) error {
+	return genWrappedErrWith(count, _separator(), "")
 }

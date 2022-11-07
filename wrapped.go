@@ -6,9 +6,13 @@ import (
 
 // newWrapped returns the error as a new package type Wrapped
 func newWrapped(k error, opts ...Option) wrapped {
-	k, opts = newWrappedFromWrappedError(k, opts...)
+	sep := _separator()
+	k, opts = newWrappedFromWrappedError(k, sep, opts...)
 	w := wrapped{
-		kind: newKind(k),
+		kind: kind{
+			err:       k,
+			separator: sep,
+		},
 	}
 	for _, opt := range opts {
 		w = opt(w)
@@ -16,11 +20,11 @@ func newWrapped(k error, opts ...Option) wrapped {
 	return w
 }
 
-func newWrappedFromWrappedError(k error, opts ...Option) (error, []Option) {
+func newWrappedFromWrappedError(k error, sep string, opts ...Option) (error, []Option) {
 	if _, ok := k.(interface {
 		Unwrap() error
 	}); ok {
-		chain := Chain(k, WithTrimCustom(separator()))
+		chain := Chain(k, WithTrimCustom(sep), WithBottomFirst())
 		if len(chain) > 1 {
 			var newOpts []Option
 			k = chain[len(chain)-1]
@@ -63,9 +67,6 @@ func (w wrapped) Error() string {
 // Is checks if the error is or contains the target error in its chain, therefore this function overrides the
 // default implementation of errors.Is
 func (w wrapped) Is(target error) bool {
-	if w.kind.err.Error() == target.Error() {
-		return true
-	}
 	chain := w.Chain()
 	for _, err := range chain {
 		if err.Error() == target.Error() {
@@ -75,7 +76,8 @@ func (w wrapped) Is(target error) bool {
 	return false
 }
 
-// Chain builds the error chain as a slice of error for the package type Wrapped
+// Chain builds the error chain as a slice of error for the package type Wrapped, ordered with the last element being
+// the bottom most error in the chain
 func (w wrapped) Chain() []error {
 	return Chain(w, WithTrimCustom(w.kind.separator))
 }

@@ -1,13 +1,5 @@
 package gerr
 
-// newKind returns an error as the package type Kind
-func newKind(err error) kind {
-	return kind{
-		err:       err,
-		separator: separator(),
-	}
-}
-
 // kind represents the type of error and does not contain any additional context to the error
 type kind struct {
 	err       error
@@ -25,7 +17,10 @@ func (k kind) Error() string {
 
 // Add adds the given error to the error chain and returns the error as the package type Wrapped
 func (k kind) Add(err error) Grr {
-	return newWrapped(k, WithErr(err))
+	return wrapped{
+		kind: k,
+		err:  err,
+	}
 }
 
 // Is returns true if the error is of the given type, or exists in its chain

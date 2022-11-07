@@ -27,7 +27,7 @@ contextual information, not to be confused with `context.Context`.
 Gerr does not add any overhead to the error, it is just a wrapper around the error, and does not add any significant 
 size to the memory footprint of the error.   
 
-### Example
+### Example `Grr` interface usage
 ```go
 package main
 
@@ -67,14 +67,15 @@ There you can see an example of the Grr interface in action. How we can embed it
 error.
 
 ### Chain
-ThThe chain is constructed by using the `fmt.Errorf("some message: %w", err)` function, which wraps the error in a way 
+The chain is constructed by using the `fmt.Errorf("some message: %w", err)` function, which wraps the error in a way 
 that it can be retrieved by using the `errors.Unwrap` function.
-however the errors unwrap only keeps the bottom most error in the chain preserved. 
+however `errors.Unwrap` only keeps the bottom most error in the chain fully preserved. 
 
 This is where a special function comes in handy, `gerr.Chain()` which returns the chain of errors as a slice of errors.
 It does this by removing the next wrapped error from the current error, the subtraction of these strings, when 
-effectively sanitized from any separators is the representation of the current error. 
-#### Example
+effectively sanitized from any separators is the representation of the current error. Walk the chain and voila you have
+the full chain of errors.
+#### Example `gerr.Chain()` usage
 ```go
 package main
 

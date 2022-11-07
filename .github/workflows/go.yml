@@ -11,7 +11,7 @@ on:
 
 jobs:
 
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
@@ -23,11 +23,12 @@ jobs:
 
     - name: Test
       run: go test -v -cover ./...
+
   coverage:
     runs-on: ubuntu-latest
     container: golang:latest
     steps:
-      - name: Checkout code
+      - name: Checkout Source
         uses: actions/checkout@v1
       - name: Calc coverage
         run: |
@@ -43,3 +44,14 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: coverage.lcov
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v2
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
+

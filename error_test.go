@@ -3,7 +3,6 @@ package gerr
 import (
 	"errors"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 )
@@ -294,7 +293,7 @@ func TestAsGrr(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := AsGrr(tt.args.err)
 			if got != nil {
-				if !assert.Implements(t, (*Grr)(nil), got) {
+				if _, ok := got.(Grr); !ok {
 					t.Errorf("AsGrr() returned type that does not implement Grr")
 					t.FailNow()
 				}
@@ -304,7 +303,10 @@ func TestAsGrr(t *testing.T) {
 					t.FailNow()
 				}
 			}
-			assert.EqualValues(t, tt.want.structType, got, "AsGrr() = %v, want %v", got, tt.want)
+			if !reflect.DeepEqual(got, tt.want.structType) {
+				t.Errorf("AsGrr() = %v, want %v", got, tt.want)
+				t.FailNow()
+			}
 		})
 	}
 }

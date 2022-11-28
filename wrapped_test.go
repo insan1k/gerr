@@ -275,8 +275,15 @@ func Test_wrapped_Is(t *testing.T) {
 				kind: tt.fields.kind,
 				err:  tt.fields.err,
 			}
+			w2 := New(tt.fields.kind).Add(tt.fields.err)
 			if got := w.Is(tt.args.target); got != tt.want {
 				t.Errorf("Is() = %v, want %v", got, tt.want)
+			}
+			if errors.Is(w, tt.args.target) != tt.want {
+				t.Errorf("errors.Is() = %v, want %v", w, tt.want)
+			}
+			if !errors.Is(w, w2) {
+				t.Errorf("errors.Is() = %v, want %v", w, tt.want)
 			}
 		})
 	}

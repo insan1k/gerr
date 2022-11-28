@@ -43,15 +43,15 @@ message.
 - `Wrapped`: is the error type that wraps another error, it has the same information as the `kind` type, but also has 
 the `Unwrap` method, thus it fulfills the `errors.Unwrap` interface.
 
-The `New` function returns a `Grr` interface type, behind the scenes it is either of type `wrapped` or type `kind`
+The `New` function returns a `Grr` interface type, behind the scenes it is either of type `Wrapped` or type `Kind`
 depending on the arguments passed to the function.
 
-The `Add` function is a convenience function to add an error to an existing error, if the underlying type is `kind`
-then it will be converted to a `wrapped` type, and the new error will be added to the chain, if it's already a type
-`wrapped` then the new error will be added to the chain.
+The `Add` function is a convenience function to add an error to an existing error, if the underlying type is `Kind`
+then it will be converted to a `Wrapped` type, and the new error will be added to the chain, if it's already a type
+`Wrapped` then the new error will be added to the chain.
 
-The `Error` function exists to satisfy the `error` interface, and it returns the error message, which is a concatenation
-of the error messages of the underlying errors, separated by the separator.
+The `Error` function exists to satisfy the `Error()string` interface, and it returns the error message, which is a 
+concatenation of the error messages of the underlying errors, separated by the separator.
 
 The `Chain` function returns the complete and sanitized error chain as `[]error` this is useful if more control is
 needed, which is not exposed by the `Is` function.
@@ -59,12 +59,12 @@ needed, which is not exposed by the `Is` function.
 The `Is` function not only is a convenience function to check if the error is of a specific type, but it also
 if fulfills the `errors.Is` interface therefore any calls to `errors.Is` will also work.
 
-The `Sanitize` function simply removes all of the `wrapped` errors and returns a `kind` type, one could add
-more errors to the kind and thus it would become a `wrapped` type again, this is useful for for making sure that 
+The `Sanitize` function simply removes all of the `Wrapped` errors and returns a `Kind` type, one could add
+more errors to the kind and thus it would become a `Wrapped` type again, this is useful for for making sure that 
 you are not propagating errors that are not relevant to the caller.
 
 The `Unwrap` function implements the `errors.Unwrap` interface, and returns the underlying error, if it exists.
-This method is only available on the `wrapped` type and it's not exposed on the `Grr` interface.
+This method is only available on the `Wrapped` type and it's not exposed on the `Grr` interface.
 
 #### Using `gerr.New`
 

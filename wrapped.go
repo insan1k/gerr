@@ -67,6 +67,17 @@ func (w wrapped) Error() string {
 // Is checks if the error is or contains the target error in its chain, therefore this function overrides the
 // default implementation of errors.Is
 func (w wrapped) Is(target error) bool {
+	// check if the target is the same as the error
+	if g, ok := target.(Grr); ok {
+		if g.Error() == w.Error() {
+			return true
+		}
+	}
+	// check if the error is the same as the kind
+	if w.kind.err.Error() == target.Error() {
+		return true
+	}
+	// finally check if the error is in the chain
 	chain := w.Chain()
 	for _, err := range chain {
 		if err.Error() == target.Error() {

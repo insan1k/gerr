@@ -76,7 +76,7 @@ func unwrapBuildChain(currentErr error, nextErr error, chain *[]error, conf sani
 		sanitizeAppend(currentErr, nextErr, chain, conf)
 		return current.Unwrap(), next.Unwrap(), true
 	}
-	if currOk && !nextOk {
+	if currOk && !nextOk && nextErr != nil {
 		sanitizeAppend(currentErr, nextErr, chain, conf)
 		*chain = append(*chain, errors.New(sanitizeString(nextErr.Error(), conf)))
 	}
@@ -109,6 +109,12 @@ func sanitizeString(s string, conf sanitizeConfig) string {
 
 // removeEqualPartFromError removes the string of the next error from the current error
 func removeEqualPartFromError(currentErr, nextErr error) string {
+	if currentErr == nil {
+		return ""
+	}
+	if nextErr == nil {
+		return currentErr.Error()
+	}
 	s := strings.Replace(currentErr.Error(), nextErr.Error(), "", 1)
 	return s
 }

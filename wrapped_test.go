@@ -227,6 +227,20 @@ func Test_wrapped_Is(t *testing.T) {
 			want: false,
 		},
 		{
+			name: "IsNotTarget2",
+			fields: fields{
+				kind: kind{
+					err:       errors.New("test blablalfda sda sdf asf dad as dfas"),
+					separator: _separator(),
+				},
+				err: nil,
+			},
+			args: args{
+				target: errors.New("not"),
+			},
+			want: false,
+		},
+		{
 			name: "IsTargetBot100",
 			fields: fields{
 				kind: kind{

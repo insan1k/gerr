@@ -61,6 +61,9 @@ func (w wrapped) Add(err error) Grr {
 
 // Grr implements the Wrapped interface
 func (w wrapped) Error() string {
+	if w.err == nil {
+		return w.kind.err.Error()
+	}
 	return w.kind.err.Error() + w.kind.separator + w.err.Error()
 }
 

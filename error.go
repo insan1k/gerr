@@ -1,5 +1,7 @@
 package gerr
 
+import "fmt"
+
 // New returns the package type Wrapped as a standard error if the given arguments contain a wrapped error, or supply a
 // error to wrap using WithErr, otherwise it returns Kind which implements the package Grr interface.
 func New(kind error, opts ...Option) Grr {
@@ -23,6 +25,21 @@ func WithErr(err error) Option {
 		}
 		return w
 	}
+}
+
+// Errorf creates a new package type Wrapped from the given format and arguments, if the given arguments contain a
+// wrapped error, or supply an error to wrap using WithErr, otherwise it returns Kind which implements the package Grr
+// interface.
+func Errorf(format string, a ...interface{}) Grr {
+	return New(fmt.Errorf(format, a...))
+}
+
+// WithErrorf embeds an error on the package type Wrapped, when calling WithErrorf multiple times note that the first
+// call will be considered as the original error, subsequent calls will wrap that error. Additionally, if the given
+// kind error contains a wrapped error, the given error will be added to the chain of the wrapped error and will not
+// overwrite the original error.
+func WithErrorf(format string, a ...interface{}) Option {
+	return WithErr(fmt.Errorf(format, a...))
 }
 
 // Option is the functional type for configuring a package type Grr
